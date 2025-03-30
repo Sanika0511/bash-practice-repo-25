@@ -6,3 +6,30 @@
 # The above command should create a output file which contains the video from 2 min to 4 min.
 #
 # Refer: youtube-dl and ffmpeg commands for this
+
+
+#!/bin/bash
+
+echo "Extracting clip from YouTube video..."
+echo "Start Time: $1"
+echo "End Time: $2"
+echo "Output File: $3"
+echo "YouTube URL: $4"
+
+if [[ -z "$4" ]]; then
+    echo "Error: YouTube URL is required."
+    exit 1
+fi
+
+START=$1
+END=$2
+OUTPUT=$3
+URL=$4
+
+yt-dlp -f best -o "downloaded_video.mp4" "$URL"
+
+ffmpeg -i "downloaded_video.mp4" -ss "$START" -to "$END" -c copy "$OUTPUT"
+
+rm -f "downloaded_video.mp4"
+
+echo "Clip successfully saved as $OUTPUT"
