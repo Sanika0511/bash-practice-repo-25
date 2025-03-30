@@ -6,3 +6,16 @@ grep -E 'Tctl|Tdie|Package id' /sys/class/hwmon/hwmon*/temp*_label | head -n1 | 
 #
 # Celcius: 42.0 C
 # Fahrenheit: 107.6 F
+
+#!/usr/bin/env bash
+
+# Get CPU temperature in millidegrees Celsius
+temp_milli=$(grep -E 'Tctl|Tdie|Package id' /sys/class/hwmon/hwmon*/temp*_label | head -n1 | cut -d':' -f1 | sed 's/label/input/' | xargs cat)
+
+# Convert to Celsius and Fahrenheit
+temp_celsius=$(awk "BEGIN {print $temp_milli / 1000}")
+temp_fahrenheit=$(awk "BEGIN {print ($temp_celsius * 9/5) + 32}")
+
+# Display the results
+echo "Celsius: $temp_celsius°C"
+echo "Fahrenheit: $temp_fahrenheit°F"
