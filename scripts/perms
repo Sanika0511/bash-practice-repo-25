@@ -7,3 +7,22 @@
 # 775 weather
 # 664 ../README.md
 
+
+#!/bin/bash
+
+# Check if at least one argument is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <file1> <file2> ..."
+    exit 1
+fi
+
+# Loop through all provided files
+for file in "$@"; do
+    if [ -e "$file" ]; then
+        perms=$(stat -c "%a" "$file")
+        echo "$file: $perms"
+    else
+        echo "$file: No such file"
+    fi
+done
+
