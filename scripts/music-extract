@@ -26,3 +26,42 @@
 # └── Songs
 #     ├── Song1.mp3
 #     └── Song2.mp3
+
+
+#!/usr/bin/env bash
+
+# Ensure ffmpeg is installed
+require() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Error: $1 is not installed." >&2
+        exit 1
+    fi
+}
+
+require ffmpeg
+require fd
+
+# Validate input arguments
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+SOURCE_DIR="$1"
+DEST_DIR="${SOURCE_DIR%/}-Music"
+
+# Find and process all .mp4 files
+fd -e mp4 . "$SOURCE_DIR" | while read -r file; do
+    # Create corresponding output directory
+    rel_path="${file#$SOURCE_DIR/}"
+    out_dir="$DEST_DIR/$(dirname "$rel_path")"
+    mkdir -p "$out_dir"
+
+    # Convert .mp4 to .mp3 using ffmpeg
+    output_file="$out_dir/${rel_path%.mp4}.mp3"
+    ffmpeg -i "$file" -q:a 0 -map a "$output_file" -y &>/dev/null
+
+    echo "Converted: $file -> $output_file"
+done
+
+echo "Conversion complete! MP3 files are in '$DEST_DIR'."
