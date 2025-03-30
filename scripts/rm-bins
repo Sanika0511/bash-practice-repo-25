@@ -2,3 +2,6 @@
 
 # Remove all the binary files (usually made after gcc) present inside current directory
 # Refer "man find" for more information, you can also use modern tool like fd instead of find
+
+find . -type f -perm /111 ! -name "*.*" -exec rm {} +  
+echo "All executable binary files have been deleted."
