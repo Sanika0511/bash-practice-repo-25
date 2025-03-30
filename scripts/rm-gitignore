@@ -2,3 +2,16 @@
 
 # Removes all files written in .gitignore of any git repository (multiple) present inside current directory
 # To find list of all git repos inside current directory you can use: "find . -name .git -type d -prune"
+
+
+repositories=$(find . -name .git -type d -prune | sed 's|/.git||')
+
+for repo in $repositories; do
+    echo "Processing repository: $repo"
+    (
+        cd "$repo" || { echo "Unable to access $repo"; continue; }
+        git clean -X -f
+    )
+done
+
+echo "Cleanup completed."
