@@ -2,3 +2,37 @@
 
 # TODO: Display lines of code by language in a remote git repository
 # Refer "cloc" command or similar
+
+#!/usr/bin/env bash
+
+# Ensure required dependencies are installed
+require() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Error: $1 is not installed." >&2
+        exit 1
+    fi
+}
+
+require git
+require cloc
+
+# Validate input arguments
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <git-repo-url>"
+    exit 1
+fi
+
+REPO_URL="$1"
+TMP_DIR=$(mktemp -d)
+
+# Clone the repository (shallow for speed)
+git clone --depth 1 "$REPO_URL" "$TMP_DIR" &>/dev/null || {
+    echo "Error: Failed to clone repository."
+    exit 1
+}
+
+# Run cloc to analyze the code
+cloc "$TMP_DIR"
+
+# Cleanup
+rm -rf "$TMP_DIR"
