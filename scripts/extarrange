@@ -31,3 +31,49 @@ fd -tf -d1 \
     mv "$file" "$folder"
 done
 
+#!/usr/bin/env bash
+
+# Arranges the files by grouping them into folders based on their extension.
+# Recommended: Run this script in your downloads folder.
+
+# Ensure required dependencies are installed
+require() {
+    if ! command -v "$1" &>/dev/null; then
+        echo "Error: $1 is not installed." >&2
+        exit 1
+    fi
+}
+
+require fd
+require grep
+
+# Define special case mappings for file types
+declare -A special_cases=(
+    ['\.(tar\..*|tbz)$']='tar'
+    ['\.(jpe?g|png|gif|bmp|webp)$']='images'
+    ['\.(mp4|mkv|avi|mov)$']='videos'
+    ['\.(mp3|wav|flac)$']='audio'
+    ['\.(pdf|epub|mobi)$']='documents'
+)
+
+# Process files in the current directory
+fd -tf -d1 | while read -r file; do
+    [[ "$file" == "$0" ]] && continue  # Skip script itself
+    [[ "$file" =~ ^\..* ]] && continue # Ignore hidden files
+
+    extension="${file##*.}"
+    folder="$PWD/$extension"
+
+    # Check if the file matches any special case pattern
+    for regex in "${!special_cases[@]}"; do
+        if [[ "$file" =~ $regex ]]; then
+            folder="$PWD/${special_cases[$regex]}"
+            break
+        fi
+    done
+
+    mkdir -p "$folder"
+    mv "$file" "$folder"
+done
+
+echo "Files have been organized."
